@@ -41,7 +41,7 @@ Running on http://127.0.0.1:8000
 
 ## Project Structure
 ```
-cleric-query-agent
+cleric-query-
 ├─ agent.log
 ├─ gpt_utils.py
 ├─ kube_utils.py
