@@ -20,8 +20,6 @@ logging.basicConfig(level=logging.DEBUG,
 try:
     initialize_k8s()
     logging.info("Kubernetes configuration initialized successfully.")
-    # Log active Kubernetes context
-    log_active_context()
 except Exception as e:
     logging.error(f"Failed to initialize Kubernetes configuration: {e}")
     raise RuntimeError("Failed to initialize Kubernetes configuration.")

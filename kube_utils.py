@@ -5,22 +5,11 @@ import logging
 def initialize_k8s():
     kubeconfig_path = os.getenv("KUBECONFIG", os.path.join(os.path.expanduser("~"), ".kube", "config"))
     if not os.path.exists(kubeconfig_path):
-        logging.error(f"Kubeconfig file not found at {kubeconfig_path}")
-        raise RuntimeError("No valid kubeconfig found. Ensure the validator provides one.")
+        raise FileNotFoundError(f"Kubeconfig file not found at {kubeconfig_path}")
     config.load_kube_config(config_file=kubeconfig_path)
-    logging.info(f"Kubernetes configuration initialized using {kubeconfig_path}")
+    logging.info(f"KUBECONFIG in use: {os.getenv('KUBECONFIG')} (Resolved Path: {kubeconfig_path})")
 
-
-def get_kubernetes_api_server():
-    api_client = client.ApiClient()
-    return api_client.configuration.host
-
-def validate_namespace(namespace):
-    if namespace != "validator-namespace":
-        raise RuntimeError(f"Access to namespace '{namespace}' is not allowed.")
-
-def get_pods_in_namespace(namespace="validator-namespace"):
-    validate_namespace(namespace)
+def get_pods_in_namespace(namespace="default"):
     v1 = client.CoreV1Api()
     pod_list = v1.list_namespaced_pod(namespace)
     return [
@@ -32,8 +21,7 @@ def get_pods_in_namespace(namespace="validator-namespace"):
         for pod in pod_list.items
     ]
 
-def get_pods_with_nodes(namespace="validator-namespace"):
-    validate_namespace(namespace)
+def get_pods_with_nodes(namespace="default"):
     v1 = client.CoreV1Api()
     pod_list = v1.list_namespaced_pod(namespace)
     pods_with_nodes = []
@@ -48,8 +36,7 @@ def get_pods_with_nodes(namespace="validator-namespace"):
             logging.warning(f"Pod {pod.metadata.name} does not have a nodeName assigned.")
     return pods_with_nodes
 
-def get_pod_restarts(pod_name, namespace="validator-namespace"):
-    validate_namespace(namespace)
+def get_pod_restarts(pod_name, namespace="default"):
     logging.info(f"Fetching restart count for pod: {pod_name} in namespace: {namespace}")
     pods = get_pods_in_namespace(namespace)
     matched_pods = [pod for pod in pods if pod_name in pod["name"]]  
@@ -66,8 +53,7 @@ def get_pod_restarts(pod_name, namespace="validator-namespace"):
         logging.warning(f"No pods found matching the name '{pod_name}' in namespace '{namespace}'.")
         return None, None
 
-def get_pods_by_deployment(deployment_name, namespace="validator-namespace"):
-    validate_namespace(namespace)
+def get_pods_by_deployment(deployment_name, namespace="default"):
     v1 = client.CoreV1Api()
     apps_v1 = client.AppsV1Api()
 
@@ -88,23 +74,7 @@ def get_pods_by_deployment(deployment_name, namespace="validator-namespace"):
         if e.status == 404:
             logging.warning(f"Deployment '{deployment_name}' not found in namespace '{namespace}'.")
             return []
-        elif e.status == 403:
-            logging.error(f"Permission denied when accessing namespace '{namespace}' for deployment '{deployment_name}'.")
-            return []
-        else:
-            raise RuntimeError(f"Error fetching pods for deployment '{deployment_name}': {e}")
-
-def log_cluster_resources():
-    v1 = client.CoreV1Api()
-    namespaces = [ns.metadata.name for ns in v1.list_namespace().items]
-    logging.info(f"Available namespaces: {namespaces}")
-
-    for namespace in namespaces:
-        try:
-            pods = [pod.metadata.name for pod in v1.list_namespaced_pod(namespace).items]
-            logging.info(f"Pods in namespace '{namespace}': {pods}")
-        except Exception as e:
-            logging.warning(f"Error fetching pods in namespace '{namespace}': {e}")
+        raise RuntimeError(f"Error fetching pods for deployment '{deployment_name}': {e}")
 
 def trim_identifier(name):
     return "-".join(name.split("-")[:-2]) if "-" in name else name
