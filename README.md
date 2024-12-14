@@ -18,8 +18,8 @@ The application is designed to handle user queries related to Kubernetes cluster
 
 ## Cloning the Repository
 ```bash
-git clone https://github.com/sanketchaudhary10/cleric-query-Agent.git
-cd cleric-query-agent
+git clone https://github.com/sanketchaudhary10/cleric-query-.git
+cd cleric-query-
 ```
 
 ## Installing the required libraries
