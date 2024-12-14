@@ -57,14 +57,14 @@ def create_query():
         elif "nodes" in query.lower() and "cluster" in query.lower():
             nodes = get_pods_with_nodes()
             node_names = set([pod["node"] for pod in nodes])
-            answer = f"{len(node_names)} nodes in the cluster."
+            answer = f"{len(node_names)}"
 
         elif intents["pods"] and "restarts" in query.lower():
             pod_name = next((kw for kw in keywords if "deployment" in kw.lower()), None)
             if pod_name:
                 pod_full_name, restarts = get_pod_restarts(pod_name)
                 if pod_full_name and restarts is not None:
-                    answer = f"{pod_full_name} restarted {restarts} times"
+                    answer = f"{restarts}"
                 elif pod_full_name is None:
                     answer = f"Multiple pods match '{pod_name}'. Please provide more specific details."
                 else:
