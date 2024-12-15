@@ -76,18 +76,28 @@ def extract_kubernetes_names(query):
 
 def safe_parse_gpt_response(response_content):
     try:
-        # Attempt to locate JSON structure in response
+        # Attempt to locate JSON structure in the response
         start = response_content.find("{")
         end = response_content.rfind("}") + 1
         if start == -1 or end == -1:
             raise ValueError("No JSON structure found in GPT response.")
-        response_data = json.loads(response_content[start:end])
+        
+        # Extract potential JSON content
+        json_content = response_content[start:end]
+        
+        # Attempt to load the extracted content as JSON
+        response_data = json.loads(json_content)
         if "intents" not in response_data or "keywords" not in response_data:
             raise ValueError("Missing required fields in GPT response.")
         return response_data
+
+    except json.JSONDecodeError as e:
+        logging.error(f"JSONDecodeError: {e}. Response Content: {response_content}")
+        raise RuntimeError("GPT response was not in valid JSON format.")
     except Exception as e:
-        logging.error(f"Error parsing GPT response: {e}")
-        raise RuntimeError("Failed to parse GPT response as JSON.")
+        logging.error(f"Error parsing GPT response: {e}. Response Content: {response_content}")
+        raise RuntimeError("Failed to parse GPT response.")
+
 
 # def extract_kubernetes_names(query):
 #     query_cleaned = re.sub(r"[^\w\s\-_]", "", query.lower())
