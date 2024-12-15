@@ -14,6 +14,45 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 if not openai.api_key:
     raise ValueError("OpenAI API key is missing. Set it in the environment variables.")
 
+# def parse_query_with_gpt(query):
+#     prompt = f"""
+#     Parse the following query into intents and keywords. 
+#     Intents should be structured as a dictionary indicating True/False for the following categories: pods, namespace, status, deployments, logs.
+#     Keywords should be a list of extracted Kubernetes-related terms or resource names.
+
+#     Query: "{query}"
+
+#     Respond with a JSON object directly, without Markdown formatting or code blocks, in the following structure:
+#     {{
+#         "intents": {{
+#             "pods": bool,
+#             "namespace": bool,
+#             "status": bool,
+#             "deployments": bool,
+#             "logs": bool
+#         }},
+#         "keywords": [list of keywords]
+#     }}
+#     """
+#     try:
+#         response_content = query_gpt(prompt)
+#         logging.info(f"GPT-4 Response: {response_content}")
+#         response_data = json.loads(response_content)
+#         intents = response_data["intents"]
+#         keywords = response_data["keywords"]
+
+#         if not keywords:
+#             keywords = extract_kubernetes_names(query)
+#             logging.warning("Keywords extracted using fallback regex method.")
+
+#         return intents, keywords
+#     except json.JSONDecodeError as e:
+#         logging.error(f"Failed to parse GPT response as JSON: {e}")
+#         raise RuntimeError("GPT response was not in valid JSON format.")
+#     except Exception as e:
+#         logging.error(f"Error querying GPT-4: {e}")
+#         raise RuntimeError("Failed to parse query using GPT-4.")
+
 def parse_query_with_gpt(query):
     prompt = f"""
     Parse the following query into intents and keywords. 
@@ -37,21 +76,19 @@ def parse_query_with_gpt(query):
     try:
         response_content = query_gpt(prompt)
         logging.info(f"GPT-4 Response: {response_content}")
+
         response_data = json.loads(response_content)
-        intents = response_data["intents"]
-        keywords = response_data["keywords"]
+        if "intents" not in response_data or "keywords" not in response_data:
+            raise ValueError("Missing required fields in GPT response.")
 
-        if not keywords:
-            keywords = extract_kubernetes_names(query)
-            logging.warning("Keywords extracted using fallback regex method.")
-
-        return intents, keywords
+        return response_data["intents"], response_data["keywords"]
     except json.JSONDecodeError as e:
         logging.error(f"Failed to parse GPT response as JSON: {e}")
         raise RuntimeError("GPT response was not in valid JSON format.")
     except Exception as e:
         logging.error(f"Error querying GPT-4: {e}")
         raise RuntimeError("Failed to parse query using GPT-4.")
+
 
 def query_gpt(prompt):
     try:
