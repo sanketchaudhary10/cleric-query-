@@ -29,15 +29,19 @@ def parse_query_with_gpt(query):
         }}
         Examples:
         - Query: "How many pods are running in the default namespace?"
-        Result: {{
-            "intents": {{"pods": true, "namespace": true, "status": false, "deployments": false, "logs": false}},
-            "keywords": ["pods", "default namespace"]
-        }}
+          Result: {{
+              "intents": {{"pods": true, "namespace": true, "status": false, "deployments": false, "logs": false}},
+              "keywords": ["pods", "default namespace"]
+          }}
         Query: "{query}"
-        """
+    """
     try:
         response_content = query_gpt(prompt)
         logging.info(f"GPT-4 Response: {response_content}")
+        
+        # Remove the leading "Result:" text if present
+        if response_content.strip().startswith("Result:"):
+            response_content = response_content.strip()[7:].strip()
 
         response_data = json.loads(response_content)
         if "intents" not in response_data or "keywords" not in response_data:

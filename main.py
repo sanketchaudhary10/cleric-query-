@@ -5,7 +5,7 @@ from kube_utils import (
     initialize_k8s,
     get_pods_in_namespace,
     get_pods_with_nodes,
-    get_pod_restarts,
+    # get_pod_restarts,
     get_pods_by_deployment,
     trim_identifier,
 )
