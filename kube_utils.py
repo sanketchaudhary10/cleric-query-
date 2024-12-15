@@ -7,9 +7,7 @@ def initialize_k8s():
     if not os.path.exists(kubeconfig_path):
         raise FileNotFoundError(f"Kubeconfig file not found at {kubeconfig_path}")
     
-    config.load_kube_config(config_file=kubeconfig_path)
-    # client.ApiClient().configuration.debug = False
-    
+    config.load_kube_config(config_file=kubeconfig_path)    
     logging.info(f"KUBECONFIG in use: {os.getenv('KUBECONFIG')} (Resolved Path: {kubeconfig_path})")
 
 def get_pods_in_namespace(namespace="default"):

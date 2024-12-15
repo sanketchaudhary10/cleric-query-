@@ -53,6 +53,7 @@ def create_query():
             pods = get_pods_in_namespace()
             answer = f"{len(pods)}"
 
+
         elif "nodes" in query.lower() and "cluster" in query.lower():
             nodes = get_pods_with_nodes()
             node_names = set([pod["node"] for pod in nodes])

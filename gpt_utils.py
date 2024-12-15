@@ -64,7 +64,6 @@ def query_gpt(prompt):
         logging.error(f"OpenAI API Error: {e}")
         raise RuntimeError(f"Error querying GPT-4: {e}")
 
-# Add extraction fallback
 def extract_kubernetes_names(query):
     query_cleaned = re.sub(r"[^\w\s\-_]", "", query.lower())
     deployment_pattern = re.compile(r"[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*")
@@ -75,3 +74,4 @@ def extract_kubernetes_names(query):
 
     logging.info(f"Extracted Kubernetes Names: {filtered_keywords}")
     return filtered_keywords
+
