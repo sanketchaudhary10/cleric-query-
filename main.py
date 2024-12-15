@@ -49,7 +49,7 @@ def create_query():
         intents, keywords = parse_query_with_gpt(query)
         deployment_name = next((kw for kw in keywords if "deployment" in kw.lower()), None)
 
-        # Handle specific query cases
+        
         if intents["pods"] and intents["namespace"]:
             pods = get_pods_in_namespace()
             answer = f"{len(pods)} pods"

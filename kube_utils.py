@@ -6,12 +6,16 @@ def initialize_k8s():
     kubeconfig_path = os.getenv("KUBECONFIG", os.path.join(os.path.expanduser("~"), ".kube", "config"))
     if not os.path.exists(kubeconfig_path):
         raise FileNotFoundError(f"Kubeconfig file not found at {kubeconfig_path}")
+    
     config.load_kube_config(config_file=kubeconfig_path)
+    client.ApiClient().configuration.debug = False
+    
     logging.info(f"KUBECONFIG in use: {os.getenv('KUBECONFIG')} (Resolved Path: {kubeconfig_path})")
 
 def get_pods_in_namespace(namespace="default"):
     v1 = client.CoreV1Api()
     pod_list = v1.list_namespaced_pod(namespace)
+    logging.info(f"Fetched {len(pod_list.items)} pods from namespace '{namespace}'.")
     return [
         {
             "name": pod.metadata.name,
@@ -20,6 +24,7 @@ def get_pods_in_namespace(namespace="default"):
         }
         for pod in pod_list.items
     ]
+
 
 def get_pods_with_nodes(namespace="default"):
     v1 = client.CoreV1Api()
