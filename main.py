@@ -11,7 +11,7 @@ from kube_utils import (
 from gpt_utils import parse_query_with_gpt
 
 # Configure logging
-logging.basicConfig(level=logging.DEBUG,
+logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s %(levelname)s - %(message)s',
                     filename='agent.log', filemode='a')
 

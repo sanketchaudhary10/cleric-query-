@@ -43,7 +43,7 @@ def parse_query_with_gpt(query):
         if response_content.strip().startswith("Result:"):
             response_content = response_content.strip()[7:].strip()
 
-        response_data = validate_json_response(response_content)
+        response_data = safe_parse_gpt_response(response_content)
         if "intents" not in response_data or "keywords" not in response_data:
             raise ValueError("Missing required fields in GPT response.")
 
@@ -51,15 +51,6 @@ def parse_query_with_gpt(query):
     except Exception as e:
         logging.error(f"Error parsing query with GPT: {e}")
         raise RuntimeError("Failed to parse query using GPT.")
-
-def validate_json_response(response_content):
-    try:
-        response_data = json.loads(response_content)
-        logging.info("Validated GPT response as JSON.")
-        return response_data
-    except json.JSONDecodeError as e:
-        logging.error(f"Invalid JSON format in GPT response: {e}")
-        raise RuntimeError("GPT response was not in valid JSON format.")
 
 def query_gpt(prompt):
     try:
@@ -83,6 +74,20 @@ def extract_kubernetes_names(query):
     logging.info(f"Extracted Kubernetes Names: {filtered_keywords}")
     return filtered_keywords
 
+def safe_parse_gpt_response(response_content):
+    try:
+        # Attempt to locate JSON structure in response
+        start = response_content.find("{")
+        end = response_content.rfind("}") + 1
+        if start == -1 or end == -1:
+            raise ValueError("No JSON structure found in GPT response.")
+        response_data = json.loads(response_content[start:end])
+        if "intents" not in response_data or "keywords" not in response_data:
+            raise ValueError("Missing required fields in GPT response.")
+        return response_data
+    except Exception as e:
+        logging.error(f"Error parsing GPT response: {e}")
+        raise RuntimeError("Failed to parse GPT response as JSON.")
 
 # def extract_kubernetes_names(query):
 #     query_cleaned = re.sub(r"[^\w\s\-_]", "", query.lower())
