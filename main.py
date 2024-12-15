@@ -97,6 +97,7 @@ def create_query():
         else:
             answer = "I'm sorry, I couldn't understand your query. Please try rephrasing."
 
+        logging.debug(f"Answer before logging: {answer}")
         logging.info(f"Generated answer: {answer}")
 
         response = QueryResponse(query=query, answer=answer)
