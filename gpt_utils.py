@@ -14,65 +14,27 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 if not openai.api_key:
     raise ValueError("OpenAI API key is missing. Set it in the environment variables.")
 
-# def parse_query_with_gpt(query):
-#     prompt = f"""
-#     Parse the following query into intents and keywords. 
-#     Intents should be structured as a dictionary indicating True/False for the following categories: pods, namespace, status, deployments, logs.
-#     Keywords should be a list of extracted Kubernetes-related terms or resource names.
-
-#     Query: "{query}"
-
-#     Respond with a JSON object directly, without Markdown formatting or code blocks, in the following structure:
-#     {{
-#         "intents": {{
-#             "pods": bool,
-#             "namespace": bool,
-#             "status": bool,
-#             "deployments": bool,
-#             "logs": bool
-#         }},
-#         "keywords": [list of keywords]
-#     }}
-#     """
-#     try:
-#         response_content = query_gpt(prompt)
-#         logging.info(f"GPT-4 Response: {response_content}")
-#         response_data = json.loads(response_content)
-#         intents = response_data["intents"]
-#         keywords = response_data["keywords"]
-
-#         if not keywords:
-#             keywords = extract_kubernetes_names(query)
-#             logging.warning("Keywords extracted using fallback regex method.")
-
-#         return intents, keywords
-#     except json.JSONDecodeError as e:
-#         logging.error(f"Failed to parse GPT response as JSON: {e}")
-#         raise RuntimeError("GPT response was not in valid JSON format.")
-#     except Exception as e:
-#         logging.error(f"Error querying GPT-4: {e}")
-#         raise RuntimeError("Failed to parse query using GPT-4.")
-
 def parse_query_with_gpt(query):
     prompt = f"""
-    Parse the following query into intents and keywords. 
-    Intents should be structured as a dictionary indicating True/False for the following categories: pods, namespace, status, deployments, logs.
-    Keywords should be a list of extracted Kubernetes-related terms or resource names.
-
-    Query: "{query}"
-
-    Respond with a JSON object directly, without Markdown formatting or code blocks, in the following structure:
-    {{
-        "intents": {{
-            "pods": bool,
-            "namespace": bool,
-            "status": bool,
-            "deployments": bool,
-            "logs": bool
-        }},
-        "keywords": [list of keywords]
-    }}
-    """
+        Parse the following query into intents and keywords, handling edge cases like unknown entities. Use this structure:
+        {{
+            "intents": {{
+                "pods": true/false,
+                "namespace": true/false,
+                "status": true/false,
+                "deployments": true/false,
+                "logs": true/false
+            }},
+            "keywords": ["keyword1", "keyword2", ...]
+        }}
+        Examples:
+        - Query: "How many pods are running in the default namespace?"
+        Result: {{
+            "intents": {{"pods": true, "namespace": true, "status": false, "deployments": false, "logs": false}},
+            "keywords": ["pods", "default namespace"]
+        }}
+        Query: "{query}"
+        """
     try:
         response_content = query_gpt(prompt)
         logging.info(f"GPT-4 Response: {response_content}")
@@ -88,7 +50,6 @@ def parse_query_with_gpt(query):
     except Exception as e:
         logging.error(f"Error querying GPT-4: {e}")
         raise RuntimeError("Failed to parse query using GPT-4.")
-
 
 def query_gpt(prompt):
     try:
@@ -111,4 +72,3 @@ def extract_kubernetes_names(query):
 
     logging.info(f"Extracted Kubernetes Names: {filtered_keywords}")
     return filtered_keywords
-
