@@ -49,10 +49,9 @@ def create_query():
         intents, keywords = parse_query_with_gpt(query)
         deployment_name = next((kw for kw in keywords if "deployment" in kw.lower()), None)
 
-        
         if intents["pods"] and intents["namespace"]:
             pods = get_pods_in_namespace()
-            answer = f"{len(pods)} pods"
+            answer = f"{len(pods)}"
 
         elif "nodes" in query.lower() and "cluster" in query.lower():
             nodes = get_pods_with_nodes()
@@ -97,7 +96,7 @@ def create_query():
         else:
             answer = "I'm sorry, I couldn't understand your query. Please try rephrasing."
 
-        logging.debug(f"Answer before logging: {answer}")
+        # logging.debug(f"Answer before logging: {answer}")
         logging.info(f"Generated answer: {answer}")
 
         response = QueryResponse(query=query, answer=answer)
@@ -112,3 +111,4 @@ def create_query():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=8000)
+

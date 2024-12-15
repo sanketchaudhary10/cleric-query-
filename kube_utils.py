@@ -8,7 +8,7 @@ def initialize_k8s():
         raise FileNotFoundError(f"Kubeconfig file not found at {kubeconfig_path}")
     
     config.load_kube_config(config_file=kubeconfig_path)
-    client.ApiClient().configuration.debug = False
+    # client.ApiClient().configuration.debug = False
     
     logging.info(f"KUBECONFIG in use: {os.getenv('KUBECONFIG')} (Resolved Path: {kubeconfig_path})")
 
@@ -19,12 +19,12 @@ def get_pods_in_namespace(namespace="default"):
     return [
         {
             "name": pod.metadata.name,
+            "namespace": pod.metadata.namespace,
             "status": pod.status.phase,
             "restarts": sum(container.restart_count for container in pod.status.container_statuses or []),
         }
         for pod in pod_list.items
     ]
-
 
 def get_pods_with_nodes(namespace="default"):
     v1 = client.CoreV1Api()
@@ -83,3 +83,4 @@ def get_pods_by_deployment(deployment_name, namespace="default"):
 
 def trim_identifier(name):
     return "-".join(name.split("-")[:-2]) if "-" in name else name
+
