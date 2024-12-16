@@ -55,13 +55,13 @@ def query_gpt(prompt):
         logging.error(f"OpenAI API Error: {e}")
         raise RuntimeError(f"Error querying GPT-4: {e}")
 
-# def extract_kubernetes_names(query):
-#     query_cleaned = re.sub(r"[^\w\s\-_]", "", query.lower())
-#     deployment_pattern = re.compile(r"[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*")
-#     extracted_keywords = deployment_pattern.findall(query_cleaned)
+def extract_kubernetes_names(query):
+    query_cleaned = re.sub(r"[^\w\s\-_]", "", query.lower())
+    deployment_pattern = re.compile(r"[a-zA-Z0-9]+(?:-[a-zA-Z0-9]+)*")
+    extracted_keywords = deployment_pattern.findall(query_cleaned)
 
-#     stop_words = {"how", "many", "has", "the", "had", "is"}
-#     filtered_keywords = [kw for kw in extracted_keywords if kw not in stop_words]
+    stop_words = {"how", "many", "has", "the", "had", "is"}
+    filtered_keywords = [kw for kw in extracted_keywords if kw not in stop_words]
 
-#     logging.info(f"Extracted Kubernetes Names: {filtered_keywords}")
-#     return filtered_keywords
+    logging.info(f"Extracted Kubernetes Names: {filtered_keywords}")
+    return filtered_keywords
