@@ -3,8 +3,6 @@ import os
 import json
 import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s - %(message)s')
 
 # Load OpenAI API key
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -32,14 +30,11 @@ def parse_query_with_gpt(query):
         response_content = query_gpt(prompt)
         logging.info(f"GPT-4 Response: {response_content}")
 
-        # Handle potential prefix in response
         if response_content.strip().startswith("Result:"):
             response_content = response_content.strip()[7:].strip()
 
-        # Parse JSON
         response_data = json.loads(response_content)
         
-        # Validate required fields
         if not isinstance(response_data, dict):
             raise ValueError("GPT response is not a valid dictionary.")
         if "intents" not in response_data or "keywords" not in response_data:
