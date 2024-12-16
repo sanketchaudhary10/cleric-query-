@@ -37,7 +37,7 @@ def parse_query_with_gpt(query):
     """
     try:
         response_content = query_gpt(prompt)
-        logging.info(f"GPT-4 Response: {response_content}")
+        # logging.debug(f"Raw GPT-4 Response: {response_content}")
 
         # Remove the leading "Result:" text if present
         if response_content.strip().startswith("Result:"):
@@ -47,7 +47,9 @@ def parse_query_with_gpt(query):
         if "intents" not in response_data or "keywords" not in response_data:
             raise ValueError("Missing required fields in GPT response.")
 
+        logging.info(f"Parsed GPT Response: {response_data}")
         return response_data["intents"], response_data["keywords"]
+
     except Exception as e:
         logging.error(f"Error parsing query with GPT: {e}")
         raise RuntimeError("Failed to parse query using GPT.")
@@ -89,6 +91,8 @@ def safe_parse_gpt_response(response_content):
         response_data = json.loads(json_content)
         if "intents" not in response_data or "keywords" not in response_data:
             raise ValueError("Missing required fields in GPT response.")
+        
+        # logging.debug(f"Successfully parsed JSON from GPT response: {response_data}")
         return response_data
 
     except json.JSONDecodeError as e:
@@ -97,6 +101,7 @@ def safe_parse_gpt_response(response_content):
     except Exception as e:
         logging.error(f"Error parsing GPT response: {e}. Response Content: {response_content}")
         raise RuntimeError("Failed to parse GPT response.")
+
 
 
 # def extract_kubernetes_names(query):
